@@ -21,7 +21,7 @@ namespace Chat
         {
             ServerUser user = new ServerUser { ID = nextID, Name = name, operationContext = OperationContext.Current };
             nextID++;
-            SendMsg(user.Name + " подключился к чату!");
+            SendMsg(user.Name + " подключился к чату!", 0);
             users.Add(user);
             return user.ID;
 
@@ -33,13 +33,22 @@ namespace Chat
             if (user != null) 
             {
                 users.Remove(user);
-                SendMsg(user.Name + " покинул чат!");
+                SendMsg(user.Name + " покинул чат!", 0);
             }
         }
 
-        public void SendMsg(string msg)
+        public void SendMsg(string msg, int id)
         {
-            throw new NotImplementedException();
+            var user = users.FirstOrDefault(p => p.ID == id);
+
+            foreach (var item in users)
+            {
+                string answer = "[" + DateTime.Now.ToShortTimeString() + "]";                
+                if (user != null)                
+                    answer += " : " + user.Name + " ";
+                answer += msg;
+                item.operationContext.GetCallbackChannel<IServerChatCallBack>().CallBackMsg(answer);                
+            }
         }
     }
 }
